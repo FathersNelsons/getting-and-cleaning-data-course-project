@@ -34,25 +34,16 @@ colnames(x_train) <- feature_names
 x_test  <- x_test[,grepl("mean|std", colnames(x_test))]
 x_train <- x_train[,grepl("mean|std", colnames(x_train))]
 
-## Clean text variable names for test data
-names(x_test) <- tolower(names(x_test))
-names(x_test) <- gsub("\\(\\)", "", names(x_test))
-names(x_test) <- sub(pattern = "t", replacement = "time-", names(x_test))
-names(x_test) <- sub(pattern = "f", replacement = "frequency-", names(x_test))
-
-## Clean text variable names for train data
-names(x_train) <- tolower(names(x_train))
-names(x_train) <- gsub("\\(\\)", "", names(x_train))
-names(x_train) <- sub(pattern = "t", replacement = "time-", names(x_train))
-names(x_train) <- sub(pattern = "f", replacement = "frequency-", names(x_train))
-
-## Add type column prior to combination
-x_test  <- mutate(x_test, type = "test")
-x_train <- mutate(x_train, type = "train")
-
 ## Combine x_test and x_train into one data set
 x_data <- rbind(x_test, x_train)
 rm(x_test, x_train)
+
+## Clean text variable names for data
+names(x_data) <- tolower(names(x_data))
+names(x_data) <- gsub("\\(\\)", "", names(x_data))
+names(x_data) <- gsub("\\-", "_", names(x_data))
+names(x_data) <- sub(pattern = "t", replacement = "time_", names(x_data))
+names(x_data) <- sub(pattern = "f", replacement = "frequency_", names(x_data))
 
 ## Read in and combine y_test and y_train
 y_test  <- read.csv("UCI HAR Dataset/test/y_test.txt", header = FALSE)
@@ -83,5 +74,15 @@ x_data <- cbind(x_data, subjects)
 ## Clean up
 rm(activities, y_test, y_train, y_data, activity_ref,features, subject_test, subject_train, subjects)
 
-##
+## Now summarize means for all variables by the subset ACTIVITY n SUBJECT n <VAR>
+## and generate a file to satisfy the assignment.
+subtivity <- group_by(x_data, subject, activity)
+final_summary <- summarize_all(subtivity, mean)
+names(final_summary)[-(1:2)] <- paste0("average_", names(final_summary)[-(1:2)])
+write.table(final_summary, row.names = FALSE, file = "FinalDataSet.txt")
+
+## Final cleanup
+rm(subtivity)
+file.remove("x_test_ready.txt")
+file.remove("x_train_ready.txt")
 
