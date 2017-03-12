@@ -34,6 +34,18 @@ colnames(x_train) <- feature_names
 x_test  <- x_test[,grepl("mean|std", colnames(x_test))]
 x_train <- x_train[,grepl("mean|std", colnames(x_train))]
 
+## Clean text variable names for test data
+names(x_test) <- tolower(names(x_test))
+names(x_test) <- gsub("\\(\\)", "", names(x_test))
+names(x_test) <- sub(pattern = "t", replacement = "time-", names(x_test))
+names(x_test) <- sub(pattern = "f", replacement = "frequency-", names(x_test))
+
+## Clean text variable names for train data
+names(x_train) <- tolower(names(x_train))
+names(x_train) <- gsub("\\(\\)", "", names(x_train))
+names(x_train) <- sub(pattern = "t", replacement = "time-", names(x_train))
+names(x_train) <- sub(pattern = "f", replacement = "frequency-", names(x_train))
+
 ## Add type column prior to combination
 x_test  <- mutate(x_test, type = "test")
 x_train <- mutate(x_train, type = "train")
@@ -59,6 +71,17 @@ activities <- activities[,-grepl("activity_id", colnames(activities))]
 ## Add to x_data
 x_data <- cbind(x_data, activities)
 
+## Pull in subject column as well
+subject_test  <- read.csv("UCI HAR Dataset/test/subject_test.txt", header = FALSE)
+subject_train <- read.csv("UCI HAR Dataset/train/subject_train.txt", header = FALSE)
+subjects      <- rbind(subject_test, subject_train)
+colnames(subjects) <- c("subject")
+
+## Add to x_data
+x_data <- cbind(x_data, subjects)
+
 ## Clean up
-rm(activities, y_test, y_train, y_data, activity_ref,features)
+rm(activities, y_test, y_train, y_data, activity_ref,features, subject_test, subject_train, subjects)
+
+##
 
