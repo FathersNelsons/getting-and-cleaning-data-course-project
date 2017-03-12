@@ -42,8 +42,8 @@ rm(x_test, x_train)
 names(x_data) <- tolower(names(x_data))
 names(x_data) <- gsub("\\(\\)", "", names(x_data))
 names(x_data) <- gsub("\\-", "_", names(x_data))
-names(x_data) <- sub(pattern = "t", replacement = "time_", names(x_data))
-names(x_data) <- sub(pattern = "f", replacement = "frequency_", names(x_data))
+names(x_data) <- sub(pattern = "^t", replacement = "time_", names(x_data))
+names(x_data) <- sub(pattern = "^f", replacement = "frequency_", names(x_data))
 
 ## Read in and combine y_test and y_train
 y_test  <- read.csv("UCI HAR Dataset/test/y_test.txt", header = FALSE)
